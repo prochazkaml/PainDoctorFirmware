@@ -1,9 +1,7 @@
-/* Create a WiFi access point and provide a web server on it. 
-** For more details see http://42bots.com.
-*/
-
 #include <ESP8266WiFi.h>
-#include <ESP8266WebServer.h>
+#include <ESPAsyncTCP.h>
+#include <ESPAsyncWebServer.h>
+#include <FS.h>
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
@@ -17,7 +15,7 @@ Adafruit_SSD1306 display(128, 64, &Wire, -1);
 Adafruit_MPU6050 mpu;
 
 IPAddress apIP(192, 168, 69, 123);
-ESP8266WebServer server(80);
+AsyncWebServer server(80);
 
 const char *ssid = "PainDoctor";
 const char *password = "WorkoutOrDie";
@@ -29,24 +27,8 @@ int setupDone = 0, setupPain = 0, setupTime = 0;
 int setupTimeSeconds[11] = {
   hm_to_sec(0, 5), hm_to_sec(0, 10), hm_to_sec(0, 15), hm_to_sec(0, 20), hm_to_sec(0, 30),
   hm_to_sec(0, 45), hm_to_sec(1, 0), hm_to_sec(1, 30), hm_to_sec(2, 0), hm_to_sec(4, 0),
-  hm_to_sec(99, 59)
+  hm_to_sec(100, 0)
 };
-
-void handleRoot() {
-  digitalWrite (LED_BUILTIN, 0); //turn the built in LED on pin DO of NodeMCU on
-  // digitalWrite (ledPin, server.arg("led").toInt());
-  server.send ( 200, "text/plain", "OK" + server.arg("l") + server.arg("t"));
-  setupDone = 1;
-  setupPain = server.arg("l").charAt(0) - 'A';
-  setupTime = server.arg("t").charAt(0) - 'A';
-  digitalWrite ( LED_BUILTIN, 1 );
-}
-
-void handleNotFound() {
-  digitalWrite ( LED_BUILTIN, 0 );
-  server.send ( 404, "text/plain", "404: Not found" );
-  digitalWrite ( LED_BUILTIN, 1 ); //turn the built in LED on pin DO of NodeMCU off
-}
 
 void printfCentered(int y, char *fmt, ...) {
   char buffer[64];
@@ -104,13 +86,27 @@ void setup() {
 
   // Initialize server
   
-  //set-up the custom IP address
   WiFi.mode(WIFI_AP_STA);
   WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));   // subnet FF FF FF 00  
   WiFi.softAP(ssid, password);
 
-  server.on ( "/", handleRoot );
-  server.onNotFound ( handleNotFound );
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
+    if(request->args()) {
+      char buffer[16];
+      snprintf(buffer, 16, "OK%c%c", request->arg("l").charAt(0), request->arg("t").charAt(0));
+      
+      request->send_P( 200, "text/plain", buffer);
+      setupDone = 1;
+      setupPain = request->arg("l").charAt(0) - 'A';
+      setupTime = request->arg("t").charAt(0) - 'A';
+    } else {
+      request->send(SPIFFS, "/PainDoctor.apk", "application/octet-stream");     
+    }
+  });
+
+  server.onNotFound([](AsyncWebServerRequest *request){
+    request->send_P(404, "text/plain", "404: File not found");
+  });
   
   server.begin();
 
@@ -136,7 +132,7 @@ void setup() {
   printfCentered(40, "on-screen prompts.");
   display.display();
 
-  while(!setupDone) server.handleClient();
+  while(!setupDone) delay(100);
 
   delay(1000);
 
