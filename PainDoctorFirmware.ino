@@ -1,6 +1,8 @@
 #include <ESP8266WiFi.h>
 #include <ESPAsyncTCP.h>
+#include <ESPAsyncUDP.h>
 #include <ESPAsyncWebServer.h>
+#include <ESPAsyncDNSServer.h>
 #include <FS.h>
 #include <Wire.h>
 #include <Adafruit_GFX.h>
@@ -15,6 +17,7 @@ Adafruit_SSD1306 display(128, 64, &Wire, -1);
 Adafruit_MPU6050 mpu;
 
 IPAddress apIP(192, 168, 69, 123);
+AsyncDNSServer dns;
 AsyncWebServer server(80);
 
 const char *ssid = "PainDoctor";
@@ -90,6 +93,10 @@ void setup() {
   WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));   // subnet FF FF FF 00  
   WiFi.softAP(ssid, password);
 
+  dns.setTTL(300);
+  dns.setErrorReplyCode(AsyncDNSReplyCode::ServerFailure);
+  dns.start(53, "pain.doctor", apIP);
+
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
     if(request->args()) {
       char buffer[16];
@@ -126,10 +133,14 @@ void setup() {
   while(!WiFi.softAPgetStationNum()) { delay(100); }
 
   display.clearDisplay();
-  printfCentered(16, "Please open the");
-  printfCentered(24, "PainDoctor Companion");
-  printfCentered(32, "app and follow the");
-  printfCentered(40, "on-screen prompts.");
+  printfCentered(4, "Please open the");
+  printfCentered(12, "PainDoctor Companion");
+  printfCentered(20, "app and follow the");
+  printfCentered(28, "on-screen prompts.");
+  
+  printfCentered(44, "Get it from:");
+  printfCentered(52, "http://pain.doctor/");
+  
   display.display();
 
   while(!setupDone) delay(100);
