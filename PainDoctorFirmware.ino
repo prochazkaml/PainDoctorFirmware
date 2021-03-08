@@ -145,16 +145,20 @@ void setup() {
 
   while(!setupDone) delay(100);
 
-  delay(1000);
-
+  WiFi.softAPdisconnect(true);
   WiFi.mode(WIFI_OFF);
 
-  unsigned long oldmillis;
+  server.end();
+  dns.stop();
+
+  WiFi.disconnect();
+  WiFi.forceSleepBegin();
+  delay(1000);
+
+  unsigned long oldmillis = millis();
 
   int i;
   for(i = 9; i >= 0; i--) {
-    oldmillis = millis();
-    
     display.clearDisplay();
     display.setFont();
     printfCentered(0, "Put down the phone");
@@ -164,14 +168,13 @@ void setup() {
     display.printf("00m%02ds", i);
     display.display();
     
-    while((oldmillis + 1000) > millis()) delay(100);
+    while((oldmillis + 1000) > millis()) delay(10);
+    oldmillis += 1000;
   }
 
   int shocks = 0;
 
   for(i = setupTimeSeconds[setupTime] - 1; i >= 0; i--) {
-    oldmillis = millis();
-    
     display.clearDisplay();
     display.setFont();
     printfCentered(0, "Move!");
@@ -186,17 +189,26 @@ void setup() {
       
     display.display();
     
-    while((oldmillis + 1000) > millis()) delay(100);
+    while((oldmillis + 1000) > millis()) delay(10);
+    oldmillis += 1000;
   }
 
-  display.clearDisplay();
-  display.setCursor(0, 31);
-  display.print("You're");
-  display.setCursor(0, 63);
-  display.print("winner");
-  display.display();
+  for(i = 0; ; i++, i %= 2) {
+    display.clearDisplay();
+
+    if(i) {
+      display.setCursor(0, 31);
+      display.print("You're");
+      display.setCursor(0, 63);
+      display.print("winner");
+    }
+
+    while((oldmillis + 300) > millis()) delay(10);
+    oldmillis += 300;
+    
+    display.display();
+  }
 }
 
 void loop() {
-  delay(100);
 }
