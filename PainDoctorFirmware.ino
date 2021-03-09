@@ -33,6 +33,10 @@ int setupTimeSeconds[11] = {
   hm_to_sec(100, 0)
 };
 
+int setupPainValues[11] = {
+  50, 100, 150, 200, 300, 400, 500, 600, 700, 800, 900
+};
+
 void printfCentered(int y, char *fmt, ...) {
   char buffer[64];
   va_list argptr;
@@ -88,7 +92,7 @@ void setup() {
   mpu.setFilterBandwidth(MPU6050_BAND_21_HZ);
 
   // Initialize filesystem
-/*
+///*
   if(!SPIFFS.begin()){
     error("SPI FS error!");
   }
@@ -172,7 +176,7 @@ void setup() {
 
   WiFi.disconnect();
   WiFi.forceSleepBegin();
-*/
+//*/
   // 10 second counter
   
   unsigned long oldmillis = millis();
@@ -203,7 +207,7 @@ void setup() {
       trigger_sec--;
       zapmessage = 1;
     } else {
-      trigger_sec = 2;
+      trigger_sec = 3;
       zapmessage = 0;
     }
 
@@ -216,7 +220,7 @@ void setup() {
       display.invertDisplay(1);
       
       digitalWrite (ZAPPER_PIN, 1);
-      delay(250);
+      delay(setupPainValues[setupPain]);
       digitalWrite (ZAPPER_PIN, 0);      
 
       display.invertDisplay(0);
@@ -227,31 +231,32 @@ void setup() {
 
     notmoving = 1;
     
+    display.clearDisplay();
+    display.setFont();
+    printfCentered(0, "Move!");
+    printfCentered(48, "Got %d shocks", shocks);
+    if(zapmessage) printfCentered(56, "Zap in %d...", trigger_sec);
+
+    display.setFont(&FreeMonoBold18pt7b);
+    display.setCursor(0, 38);
+
+    if(i < 3600)
+      display.printf("%02dm%02ds", i / 60, i % 60);
+    else
+      display.printf("%02dh%02dm", i / 3600, (i / 60) % 60);
+      
+    display.display();
+
     while((oldmillis + 1000) > millis()) {
-      display.clearDisplay();
-      display.setFont();
-      printfCentered(0, "Move!");
-      printfCentered(48, "Got %d shocks", shocks);
-      if(zapmessage) printfCentered(56, "Zap in %d...", trigger_sec);
-  
       mpu.getEvent(&a, &g, &temp);
 
       if(abs(g.gyro.x) >= MOVE_THRESHOLD) notmoving = 0;
       if(abs(g.gyro.y) >= MOVE_THRESHOLD) notmoving = 0;
       if(abs(g.gyro.z) >= MOVE_THRESHOLD) notmoving = 0;
   
-      display.setFont(&FreeMonoBold18pt7b);
-      display.setCursor(0, 38);
-  
-      if(i < 3600)
-        display.printf("%02dm%02ds", i / 60, i % 60);
-      else
-        display.printf("%02dh%02dm", i / 3600, (i / 60) % 60);
-        
-      display.display();
       delay(10);
     }
-      
+    
     oldmillis += 1000;
   }
 
