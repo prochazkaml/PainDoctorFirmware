@@ -54,13 +54,19 @@ void error(char *str) {
   }
 }
 
+#define ZAPPER_PIN 14
+#define MOVE_THRESHOLD 1.0
+
 void setup() {
   char buffer[64];
 
-  pinMode ( LED_BUILTIN, OUTPUT );
-  digitalWrite ( LED_BUILTIN, 1 );
+  pinMode (LED_BUILTIN, OUTPUT);
+  digitalWrite (LED_BUILTIN, 1);
 
-  // Initialize LCD and display splash screen
+  pinMode (ZAPPER_PIN, OUTPUT);
+  digitalWrite (ZAPPER_PIN, 0);
+
+  // Initialize LCD and display the splash screen
 
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
   display.setTextSize(1);
@@ -68,6 +74,8 @@ void setup() {
   display.clearDisplay();
   display.drawBitmap(0, 0, bootlogo, 128, 64, 1);
   display.display();
+
+  delay(3000);
 
   // Initialize accelerometer
 
@@ -80,12 +88,10 @@ void setup() {
   mpu.setFilterBandwidth(MPU6050_BAND_21_HZ);
 
   // Initialize filesystem
-
+/*
   if(!SPIFFS.begin()){
     error("SPI FS error!");
   }
-
-  delay(3000);
 
   // Initialize server
   
@@ -120,11 +126,16 @@ void setup() {
   // Display connect screen
 
   display.clearDisplay();
-  
-  printfCentered(8, "Please connect to");
-  printfCentered(16, "the PainDoctor.");
-  printfCentered(40, "SSID: %s", ssid);
-  printfCentered(48, "Pass: %s", password);
+
+  display.setFont(&FreeMonoBold18pt7b);
+  display.setCursor(0, 28);
+  display.print("Hello!");
+
+  display.setFont();
+  printfCentered(32, "Please connect to");
+  printfCentered(40, "the PainDoctor.");
+  printfCentered(48, "SSID: %s", ssid);
+  printfCentered(56, "Pass: %s", password);
 
   display.display();
 
@@ -161,7 +172,7 @@ void setup() {
 
   WiFi.disconnect();
   WiFi.forceSleepBegin();
-
+*/
   // 10 second counter
   
   unsigned long oldmillis = millis();
@@ -181,26 +192,66 @@ void setup() {
     oldmillis += 1000;
   }
 
-  // Start the counting!
+  // Start counting!
 
   int shocks = 0;
+  int trigger_sec = 2, notmoving = 0, zapmessage = 0;
+  sensors_event_t a, g, temp;
 
   for(i = setupTimeSeconds[setupTime] - 1; i >= 0; i--) {
-    display.clearDisplay();
-    display.setFont();
-    printfCentered(0, "Move!");
-    printfCentered(48, "Got %d shocks", shocks);
-    display.setFont(&FreeMonoBold18pt7b);
-    display.setCursor(0, 38);
+    if(notmoving) {
+      trigger_sec--;
+      zapmessage = 1;
+    } else {
+      trigger_sec = 2;
+      zapmessage = 0;
+    }
 
-    if(i < 3600)
-      display.printf("%02dm%02ds", i / 60, i % 60);
-    else
-      display.printf("%02dh%02dm", i / 3600, (i / 60) % 60);
+    if(!trigger_sec) {
+      display.clearDisplay();
+      display.setFont(&FreeMonoBold18pt7b);
+      display.setCursor(0, 38);
+      display.print("ZAP!!!");
+      display.display();
+      display.invertDisplay(1);
       
-    display.display();
+      digitalWrite (ZAPPER_PIN, 1);
+      delay(250);
+      digitalWrite (ZAPPER_PIN, 0);      
+
+      display.invertDisplay(0);
+     
+      shocks++;
+      trigger_sec = 2;
+    }
+
+    notmoving = 1;
     
-    while((oldmillis + 1000) > millis()) delay(10);
+    while((oldmillis + 1000) > millis()) {
+      display.clearDisplay();
+      display.setFont();
+      printfCentered(0, "Move!");
+      printfCentered(48, "Got %d shocks", shocks);
+      if(zapmessage) printfCentered(56, "Zap in %d...", trigger_sec);
+  
+      mpu.getEvent(&a, &g, &temp);
+
+      if(abs(g.gyro.x) >= MOVE_THRESHOLD) notmoving = 0;
+      if(abs(g.gyro.y) >= MOVE_THRESHOLD) notmoving = 0;
+      if(abs(g.gyro.z) >= MOVE_THRESHOLD) notmoving = 0;
+  
+      display.setFont(&FreeMonoBold18pt7b);
+      display.setCursor(0, 38);
+  
+      if(i < 3600)
+        display.printf("%02dm%02ds", i / 60, i % 60);
+      else
+        display.printf("%02dh%02dm", i / 3600, (i / 60) % 60);
+        
+      display.display();
+      delay(10);
+    }
+      
     oldmillis += 1000;
   }
 
