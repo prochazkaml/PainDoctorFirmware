@@ -132,6 +132,8 @@ void setup() {
 
   while(!WiFi.softAPgetStationNum()) { delay(100); }
 
+  // Display the app screen
+
   display.clearDisplay();
   printfCentered(4, "Please open the");
   printfCentered(12, "PainDoctor Companion");
@@ -143,8 +145,14 @@ void setup() {
   
   display.display();
 
+  // Wait until the app sends a request
+
   while(!setupDone) delay(100);
 
+  delay(1000);
+
+  // Turn off AP, all servers and shut down WiFi
+  
   WiFi.softAPdisconnect(true);
   WiFi.mode(WIFI_OFF);
 
@@ -153,8 +161,9 @@ void setup() {
 
   WiFi.disconnect();
   WiFi.forceSleepBegin();
-  delay(1000);
 
+  // 10 second counter
+  
   unsigned long oldmillis = millis();
 
   int i;
@@ -171,6 +180,8 @@ void setup() {
     while((oldmillis + 1000) > millis()) delay(10);
     oldmillis += 1000;
   }
+
+  // Start the counting!
 
   int shocks = 0;
 
@@ -192,6 +203,8 @@ void setup() {
     while((oldmillis + 1000) > millis()) delay(10);
     oldmillis += 1000;
   }
+
+  // Good old "You're winner"
 
   for(i = 0; ; i++, i %= 2) {
     display.clearDisplay();
