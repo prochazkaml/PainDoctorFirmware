@@ -34,7 +34,7 @@ int setupTimeSeconds[11] = {
 };
 
 int setupPainValues[11] = {
-  50, 100, 150, 200, 300, 400, 500, 600, 700, 800, 900
+  20, 50, 100, 150, 200, 300, 400, 500, 600, 700, 800
 };
 
 void printfCentered(int y, char *fmt, ...) {
@@ -68,7 +68,7 @@ void setup() {
   digitalWrite (LED_BUILTIN, 1);
 
   pinMode (ZAPPER_PIN, OUTPUT);
-  digitalWrite (ZAPPER_PIN, 0);
+  digitalWrite (ZAPPER_PIN, 1);
 
   // Initialize LCD and display the splash screen
 
@@ -219,9 +219,9 @@ void setup() {
       display.display();
       display.invertDisplay(1);
       
-      digitalWrite (ZAPPER_PIN, 1);
+      digitalWrite (ZAPPER_PIN, 0);
       delay(setupPainValues[setupPain]);
-      digitalWrite (ZAPPER_PIN, 0);      
+      digitalWrite (ZAPPER_PIN, 1);      
 
       display.invertDisplay(0);
      
