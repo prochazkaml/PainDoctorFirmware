@@ -6,7 +6,7 @@ The firmware for the PainDoctor™, the ultimate fitness device. TL;DR: it zaps 
 
 Inspired by the ElectroBOOM's [WorkoutOrF\*\*\*ingDie™](https://youtu.be/A0314QOklz8) weight loss device.
 
-_The PainDoctor was created as a joke for our English project, but we were insane enough to make it into a real thing._ If we were serious about it and didn't have a single week to finish the project, it would be much nicer (eg. a plastic housing instead of black-painted cardboard, a custom PCB containing both the logic and the high-voltage generator, a bigger display, a real motion detector, not requiring the stupid app etc.)
+_The PainDoctor was created as a joke for our English project, but we were insane enough to make it into a real thing._ If we were serious about it and didn't have a single week to finish the project, it would be much nicer (eg. a plastic housing instead of black-painted cardboard, a custom PCB containing both the logic and the high-voltage generator, a bigger display, a real motion detector, a rechargeable battery, not requiring the stupid app etc.)
 
 Oh, yeah, you'll need [the app](https://github.com/prochazkaml/PainDoctorCompanion) to even use this thing.
 
