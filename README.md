@@ -10,6 +10,6 @@ _The PainDoctor was created as a joke for our English project, but we were insan
 
 Oh, yeah, you'll need [the app](https://github.com/prochazkaml/PainDoctorCompanion) to even use this thing.
 
-The PainDoctor™ uses an ESP-12E module, which contains an ESP-8266 (a WiFi-enabled processor) and 4 MB of flash memory on a single package. An SSD1306 128x64 OLED display is used for displaying information and an MPU6050 accelerometer mounted on a spring from a pen is used for detecting motion. It is a very crude method of detecting motion, but it does the job well enough. A relay is used to turn on/off the high-voltage generator circuit extracted from a bug zapper racket, which is connected to the 2 electrodes on the front of the PainDoctor™.
+The PainDoctor™ uses an ESP-12E module, which gives the device WiFi capabilities. An SSD1306 128x64 OLED display is used for displaying information and an MPU6050 accelerometer mounted on a spring from a pen is used for detecting motion. It is a very crude method of detecting motion, but it does the job well enough. A relay is used to turn on/off the high-voltage generator circuit extracted from a bug zapper racket, which is connected to the 2 electrodes on the front of the PainDoctor™.
 
 Compile with the Arduino IDE and select NodeMCU 1.0 with default settings. Don't forget to add the ESP8266 package index in the Additional Board Manager URLs.
