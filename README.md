@@ -14,4 +14,4 @@ The PainDoctor™ uses an ESP-12E module, which gives the device WiFi capabiliti
 
 Compile with the Arduino IDE and select NodeMCU 1.0 with default settings. Don't forget to add the ESP8266 package index in the Additional Board Manager URLs.
 
-The schematic is beyond simple, it is just an SSD1306 OLED and an MPU6050 accelerometer connected to the ESP-12E's I2C lines (pins 4 (SDA) and 5 (SCL)) and a relay connected to pin 14. I might publish the actual schematic sometime later.
+The schematic is beyond simple, it is just an SSD1306 display and an MPU6050 accelerometer connected to the ESP-12E's I2C lines (pins 4 (SDA) and 5 (SCL)) and a relay connected to pin 14. I might publish the actual schematic sometime later.
