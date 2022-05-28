@@ -1,6 +1,6 @@
 # PainDoctorFirmware
 
-The firmware for the PainDoctor™, the ultimate fitness device. TL;DR: it zaps you everytime you stop moving during your exercise. Watch [the video](http://paindoctor.wz.cz/paindoctor.mp4) for more info.
+The firmware for the PainDoctor™, the ultimate fitness device. TL;DR: it zaps you everytime you stop moving during your exercise. Watch [the video](https://paindoctor.prochazka.ml/) for more info.
 
 ![PainDoctor photo](https://user-images.githubusercontent.com/41787099/111153211-f3aebf80-8591-11eb-9d22-26e972d19110.png)
 
